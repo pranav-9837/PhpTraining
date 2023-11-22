@@ -21,6 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create'])) {
     
     $sql = "INSERT INTO user (id, name, role) VALUES ('$id','$name', '$role')";
     
+    
     if ($connection->query($sql) === TRUE) {
         echo "New User Created Successfully";
     } else {
