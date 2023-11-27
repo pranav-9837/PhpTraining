@@ -19,19 +19,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create'])) {
     $name = $_POST['name'];
     $role = $_POST['role'];
     
-    $sql = "INSERT INTO user (id, name, role) VALUES ('$id','$name', '$role')";
+    $create = "INSERT INTO user (id, name, role) VALUES ('$id','$name', '$role')";
     
     
-    if ($connection->query($sql) === TRUE) {
+    if ($connection->query($create) === TRUE) {
         echo "New User Created Successfully";
     } else {
-        echo "Error: " . $sql . "<br>" . $connection->error;
+        echo "Error: " . $create . "<br>" . $connection->error;
     }
 }
 
 //ViewUsers
-$sql = "SELECT * FROM user";
-$result = $connection->query($sql);
+$view = "SELECT * FROM user";
+$result = $connection->query($view);
 
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
@@ -47,9 +47,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
     $newName = $_POST['new_name'];
     $newrole = $_POST['new_role'];
     
-    $sql = "UPDATE user SET name='$newName', role='$newrole' WHERE id=$id";
+    $update = "UPDATE user SET name='$newName', role='$newrole' WHERE id=$id";
     
-    if ($connection->query($sql) === TRUE) {
+    if ($connection->query($update) === TRUE) {
         echo "User Updated Successfully";
     } else {
         echo "Error Updating User: " . $connection->error;
@@ -60,9 +60,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete'])) {
     $id = $_POST['id'];
     
-    $sql = "DELETE FROM user WHERE id=$id";
+    $delete = "DELETE FROM user WHERE id=$id";
     
-    if ($connection->query($sql) === TRUE) {
+    if ($connection->query($delete) === TRUE) {
         echo "User Deleted Successfully";
     } else {
         echo "Error Deleting User: " . $connection->error;
