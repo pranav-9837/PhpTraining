@@ -122,6 +122,24 @@ class Database {
         }
     }
 
+
+
+    //Filters to fetch User with it's ID, Name and Role
+    public function searchEntries($searchTerm) {
+        $query = "SELECT * FROM user WHERE id = '$searchTerm' OR name LIKE '%$searchTerm%' OR role LIKE '%$searchTerm%'";
+        $result = $this->connection->query($query);
+
+        if ($result->num_rows > 0) {
+            $entries = [];
+            while ($row = $result->fetch_assoc()) {
+                $entries[] = $row;
+            }
+            return $entries;
+        } else {
+            return "No entries found matching: $searchTerm";
+        }
+    }
+
     // Close the database connection
     public function closeConnection() {
         $this->connection->close();
@@ -129,7 +147,7 @@ class Database {
 }
 
 $db = new Database();
-
+$users = $db->viewUsers();
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['create'])) {
         echo $db->createUser($_POST['id'], $_POST['name'], $_POST['role']);
@@ -137,13 +155,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo $db->updateUser($_POST['id'], $_POST['new_name'], $_POST['new_role']);
     } elseif (isset($_POST['delete'])) {
         echo $db->deleteUser($_POST['id']);
+    }elseif (isset($_POST['find'])) {
+        $searchResults = $db->searchEntries($_POST['searchTerm']);
     }
 }
 
-$users = $db->viewUsers();
-foreach ($users as $user) {
-    echo "ID: " . $user["id"] . " - Name: " . $user["name"] . " - Role: " . $user["role"] . "<br>";
-}
+// $users = $db->viewUsers();
+// foreach ($users as $user) {
+// }
 
 $db->closeConnection();
 ?>
@@ -157,6 +176,19 @@ $db->closeConnection();
         font-family: Arial, sans-serif;
         margin: 20px;
       }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 20px;
+        }
+
+        th,
+        td {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+        }
 
       form {
         margin-bottom: 20px;
@@ -194,6 +226,31 @@ $db->closeConnection();
     </style>
   </head>
   <body>
+
+
+  <h2>Users</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Role</th>
+      </tr>
+    </thead>
+    <tbody>
+      <?php
+      foreach ($users as $user) {
+        echo '<tr>';
+        echo '<td>' . $user["id"] . '</td>';
+        echo '<td>' . $user["name"] . '</td>';
+        echo '<td>' . $user["role"] . '</td>';
+        echo '</tr>';
+      }
+      ?>
+    </tbody>
+  </table>
+
+  
     <h2>Create User</h2>
     <form action="sampleCRUDoops.php" method="POST">
       <label for="id">Id:</label>
@@ -222,5 +279,28 @@ $db->closeConnection();
       <input type="text" id="delete_id" name="id" required />
       <input type="submit" name="delete" value="Delete" />
     </form>
+
+    <h2>Search User</h2>
+    <form action="sampleCRUDoops.php" method="POST">
+      <label for="searchTerm">Searchby</label>
+      <input type="text" id="searchTerm" name="searchTerm" required />
+      <input type="submit" name="find" value="Find" />
+    </form>
+
+     <?php if (isset($searchResults)) : ?>
+        <h2>Search Results</h2>
+        <?php
+        if (is_array($searchResults) && count($searchResults) > 0) {
+            echo '<ul>';
+            foreach ($searchResults as $result) {
+                echo 'ID: ' . $result['id'] . ', Name: ' . $result['name'] . ', Role: ' . $result['role'];
+            }
+            echo '</ul>';
+        } else {
+            echo '<p>No entries found.</p>';
+        }
+        ?>
+    <?php endif; ?>
+
   </body>
 </html>
