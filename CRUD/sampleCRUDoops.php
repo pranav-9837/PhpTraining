@@ -1,18 +1,29 @@
 <?php
 class Database {
+    private static $instance = null;
+    private $connection;
     private $servername = "localhost";
     private $username = "root";
     private $password = "root";
     private $dbname = "phptest";
-    private $connection;
 
-    // Constructor to establish the database connection
-    public function __construct() {
+    private function __construct() {
         $this->connection = new mysqli($this->servername, $this->username, $this->password, $this->dbname);
 
         if ($this->connection->connect_error) {
             die("Connection failed: " . $this->connection->connect_error);
         }
+    }
+
+    public static function getInstance() {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    public function closeConnection() {
+        $this->connection->close();
     }
 
     // Create a new user
@@ -45,7 +56,7 @@ class Database {
         }
     }
 
-    // Read all users
+    //Read all users
     public function viewUsers() {
         $view = "SELECT * FROM user";
         $result = $this->connection->query($view);
@@ -140,13 +151,11 @@ class Database {
         }
     }
 
-    // Close the database connection
-    public function closeConnection() {
-        $this->connection->close();
-    }
+    
 }
 
-$db = new Database();
+//GetInstance will fetch the Database Connection.
+$db = Database::getInstance();
 $users = $db->viewUsers();
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['create'])) {
@@ -159,10 +168,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $searchResults = $db->searchEntries($_POST['searchTerm']);
     }
 }
-
-// $users = $db->viewUsers();
-// foreach ($users as $user) {
-// }
 
 $db->closeConnection();
 ?>
